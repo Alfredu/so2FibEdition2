@@ -10,10 +10,11 @@ int add(int par1, int par2) {
 		);*/
 
 	int result;
-	asm("movl 8(%ebp), %0;"
-		"addl 12(%ebp), %0;"
+	asm("movl 8(%%ebp), %0;"
+		"addl 12(%%ebp), %0;"
 		:"=r"(result)
 		);
+	return result;
 }
 
 long inner (long n){
