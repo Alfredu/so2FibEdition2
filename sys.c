@@ -45,3 +45,18 @@ int sys_fork()
 void sys_exit()
 {  
 }
+
+int sys_write(int fd, char * buffer, int size) {
+	int ret = check_fd(fd, ESCRIPTURA);
+	char pointer[2048];
+
+
+	if (ret < 0) return ret;
+	if (!buffer) return -14;
+	if (size<0) return -125;
+	copy_from_user(buffer, pointer, size);
+
+	ret = sys_write_console(pointer, size);
+
+}
+

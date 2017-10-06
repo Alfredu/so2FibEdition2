@@ -43,3 +43,11 @@ int strlen(char *a)
   return i;
 }
 
+int write(int fd, char * buffer, int size){
+  asm("movl 8(%ebp), %ebx;"
+      "movl 12(%ebp), %ecx;"
+      "movl 16(%ebp), %edx;"
+      "movl $4, %eax;"
+      "int $0x80;");
+}
+
