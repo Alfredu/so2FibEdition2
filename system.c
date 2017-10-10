@@ -74,6 +74,7 @@ int __attribute__((__section__(".text.main")))
 
   printk("Kernel Loaded!    ");
 
+  init_ticks();
 
   /* Initialize hardware data */
   setGdt(); /* Definicio de la taula de segments de memoria */

@@ -7,6 +7,12 @@ ENTRY (sys_call_table)
       .long sys_ni_syscall
       .long sys_ni_syscall
       .long sys_write
+      .long sys_ni_syscall
+      .long sys_ni_syscall
+      .long sys_ni_syscall
+      .long sys_ni_syscall
+      .long sys_ni_syscall
+      .long gettime
 
 
 .globl MAX_SYSCALL

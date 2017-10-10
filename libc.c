@@ -44,10 +44,36 @@ int strlen(char *a)
 }
 
 int write(int fd, char * buffer, int size){
+  int ret;
+  /*
   asm("movl 8(%ebp), %ebx;"
       "movl 12(%ebp), %ecx;"
       "movl 16(%ebp), %edx;"
       "movl $4, %eax;"
-      "int $0x80;");
+      "int $0x80;");*/
+  asm("movl %1, %%ebx;"
+      "movl %2, %%ecx;"
+      "movl %3, %%edx;"
+      "movl $4, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      : "=r" (ret)
+      : "r" (fd), "m" (buffer), "r" (size));
+  if (ret<0) {
+    errno = ret;
+    return -1;
+  }
+  return ret;
+}
+
+int gettime(){
+  int ret;
+  
+  asm("movl $10, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      : "=r" (ret)
+      );
+  return ret;
 }
 

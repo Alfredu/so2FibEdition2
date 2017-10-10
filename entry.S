@@ -70,11 +70,11 @@
       outb %al, $0x20;
 
 ENTRY(keyboard_handler)
-SAVE_ALL
-EOI
-CALL keyboard_interrupt
-RESTORE_ALL
-iret
+      SAVE_ALL
+      EOI
+      CALL keyboard_interrupt
+      RESTORE_ALL
+      iret
 
 
 ENTRY(system_call_handler)
@@ -90,4 +90,12 @@ fin:
       movl %eax, 0x18(%esp)
       RESTORE_ALL
       iret
+
+ENTRY(clock_handler)
+      SAVE_ALL
+      EOI
+      CALL clock_interrupt
+      RESTORE_ALL
+      iret
+      
 
