@@ -126,6 +126,6 @@ int list_empty(const struct list_head *head);
  * @head:   the head for your list.
  */
 #define list_first(head)                \
-         (head)->next
+        (head)->next
 
 #endif /* _LINUX_LIST_H */
