@@ -38,6 +38,10 @@ unsigned int *p_rdtr = (unsigned int *) KERNEL_START+2;
 /*
  * This function MUST be 'inline' because it modifies the %esp 
  */
+
+
+
+
 inline void set_seg_regs(Word data_sel, Word stack_sel, DWord esp)
 {
       esp = esp - 5*sizeof(DWord); /* To avoid overwriting task 1 */

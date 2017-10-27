@@ -17,14 +17,17 @@ union task_union *task = &protected_tasks[1]; /* == union task_union task[NR_TAS
 
 struct list_head freequeue;
 struct list_head readyqueue;
+union task_union * task1;
 
+extern struct list_head blocked;
+
+struct task_struct * idle_task;
 
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
   return list_entry( l, struct task_struct, list);
 }
 
-extern struct list_head blocked;
 
 
 /* get_DIR - Returns the Page Directory address for task 't' */
@@ -63,12 +66,25 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	struct list_head * process_list_head = list_first(&freequeue);
-	union task_union * process_task_union = (union task_union *)list_head_to_task_struct(process_list_head);
+	struct list_head * process_idle_list_head = list_first(&freequeue);
+	union task_union * process_idle_task_union = (union task_union *)list_head_to_task_struct(process_idle_list_head);
+	process_idle_task_union->task.PID = 0;
+	allocate_DIR(&process_idle_task_union->task);
+	process_idle_task_union->stack[1020] = cpu_idle;
+	process_idle_task_union->stack[1016] = 0;
+	process_idle_task_union->task.kernel_esp = 1016;
+	idle_task = &process_idle_task_union->task;
+
 }
 
 void init_task1(void)
 {
+	struct list_head * process_task1_list_head = list_first(&freequeue);
+	union task_union * process_task1_task_union = (union task_union *)list_head_to_task_struct(process_task1_list_head);
+	process_task1_task_union->task.PID = 1;
+	allocate_DIR(&process_task1_task_union->task);
+	set_user_pages(&process_task1_task_union->task);	
+
 }
 
 
