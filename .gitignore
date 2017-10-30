@@ -2,3 +2,5 @@ README
 SO2vagrant-environment.tar.gz	
 Vagrantfile
 ubuntu-xenial-16.04-cloudimg-console.log
+.vagrant/*
+bootstrap.sh

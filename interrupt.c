@@ -16,11 +16,11 @@ int zeos_ticks;
 char char_map[] =
 {
   '\0','\0','1','2','3','4','5','6',
-  '7','8','9','0','\'','¡','\0','\0',
+  '7','8','9','0','\'','ï¿½','\0','\0',
   'q','w','e','r','t','y','u','i',
   'o','p','`','+','\0','\0','a','s',
-  'd','f','g','h','j','k','l','ñ',
-  '\0','º','\0','ç','z','x','c','v',
+  'd','f','g','h','j','k','l','ï¿½',
+  '\0','ï¿½','\0','ï¿½','z','x','c','v',
   'b','n','m',',','.','-','\0','*',
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0','\0','\0','\0','\0','\0','7',
@@ -116,6 +116,10 @@ void clock_interrupt()
 {
   zeos_ticks = zeos_ticks + 1;
 
-  if(zeos_ticks==100)  task_switch(idle_task);
+  if(zeos_ticks==500) task_switch(idle_task);
+  if(zeos_ticks==1000) task_switch(task1_task);
+  if(zeos_ticks==1500) task_switch(idle_task);
+  if(zeos_ticks==2000) task_switch(task1_task);
+  
   zeos_show_clock();
 }

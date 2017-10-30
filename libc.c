@@ -77,3 +77,21 @@ int gettime(){
   return ret;
 }
 
+int getpid(){
+  int ret;
+  asm("movl $20, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      : "=r" (ret)
+    );
+  return ret;
+}
+
+int fork(){
+  int ret;
+  asm("movl $2, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      : "=r" (ret));
+  return ret;
+}
