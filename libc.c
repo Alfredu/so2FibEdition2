@@ -6,6 +6,7 @@
 
 #include <types.h>
 
+#include <errno.h>
 int errno;
 
 void itoa(int a, char *b)
@@ -60,7 +61,7 @@ int write(int fd, char * buffer, int size){
       : "=r" (ret)
       : "r" (fd), "m" (buffer), "r" (size));
   if (ret<0) {
-    errno = ret;
+    errno=-ret;
     return -1;
   }
   return ret;
@@ -74,6 +75,10 @@ int gettime(){
       "movl %%eax, %0;"
       : "=r" (ret)
       );
+  if(ret<0){
+    errno=-ret;
+    return -1;
+  }
   return ret;
 }
 
@@ -84,6 +89,10 @@ int getpid(){
       "movl %%eax, %0;"
       : "=r" (ret)
     );
+  if(ret<0){
+    errno=-ret;
+    return -1;
+  }
   return ret;
 }
 
@@ -93,5 +102,15 @@ int fork(){
       "int $0x80;"
       "movl %%eax, %0;"
       : "=r" (ret));
+    
+  if (ret<0){
+    errno=-ret;
+    return -1;
+  }
   return ret;
+}
+
+void perror(){
+  char * buffer = sys_errlist[errno];
+  write(1, buffer, strlen(buffer));
 }
