@@ -85,7 +85,8 @@ void init_task1(void)
 	allocate_DIR(&process_task1_task_union->task);
 	set_user_pages(&process_task1_task_union->task);	
 	tss.esp0 = &process_task1_task_union->stack[1024];
-	set_cr3(&process_task1_task_union->task.dir_pages_baseAddr);
+	//set_cr3(&process_task1_task_union->task.dir_pages_baseAddr);
+	
 }
 
 
