@@ -50,7 +50,8 @@ int __attribute__ ((__section__(".text.main")))
  		char ticks_s[4];
  		itoa(ticks, ticks_s);
  		write(1, ticks_s, strlen(ticks_s));
-+ 		write(1, "\n", 1); 
+		write(1, "\n", 1); 
+
  	}
  	return 0;
 }

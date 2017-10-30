@@ -115,5 +115,7 @@ void init_ticks()
 void clock_interrupt()
 {
   zeos_ticks = zeos_ticks + 1;
+
+  if(zeos_ticks==100)  task_switch(idle_task);
   zeos_show_clock();
 }

@@ -18,6 +18,7 @@ struct task_struct {
   int PID;			/* Process ID. This MUST be the first field of the struct. */
   page_table_entry * dir_pages_baseAddr;
   int kernel_esp;
+  int kernel_ebp;
   struct list_head list;
 };
 
@@ -29,6 +30,7 @@ union task_union {
 extern union task_union protected_tasks[NR_TASKS+2];
 extern union task_union *task; /* Vector de tasques */
 extern struct task_struct *idle_task;
+extern struct task_struct *task1_task;
 
 
 
