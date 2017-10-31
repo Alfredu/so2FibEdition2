@@ -45,7 +45,7 @@ int __attribute__ ((__section__(".text.main")))
 	int ticks = fork();
 	char ticks_s[10];
 	itoa(ticks, ticks_s);
-	if(write(40, 0, strlen(ticks_s)) < 0){
+	if(write(1, ticks_s, strlen(ticks_s)) < 0){
 		perror();
 	}
  	while(1){
