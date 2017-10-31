@@ -40,11 +40,31 @@ int sys_getpid()
 int sys_fork()
 {
   int PID=-1;
-  struct list_head * new_process_list_head = list_first(&freequeue);
+  //Gets a free task struct. If none are available, returns ENOMEM
+  if(list_empty(&freequeue)) return -ENOMEM;
+  struct list_head * child_list_head = list_first(&freequeue);
+  list_del(child_list_head);
+  union task_union * father_task_union = (union task_union *) current();
+  union task_union * child_task_union = (union task_union*)list_head_to_task_struct(child_list_head);
+  copy_data(father_task_union, child_task_union, sizeof(union task_union));
+
+  //TODO preguntar al profe que vol dir lo de modify parent table
 
 
-  // creates the child process
-  
+  allocate_DIR(&child_task_union->task);
+  page_table_entry *child_pt = get_PT(&child_task_union->task);
+
+  for(int i=0; i<NUM_PAG_DATA; i++){
+	  int pframe = alloc_frame();
+	  if(pframe < 0){
+		  //ALLIBERAR TOTS ELS FRAMES
+		  //ALLIBERAR EL PROCES (AL PRUCÉS)
+		  return -ENOMEM;
+	  }
+	  //The first data logic page begins at PAG_LOG_INIT_DATA
+	  set_ss_pag(child_pt, PAG_LOG_INIT_DATA+i, pframe);
+  }
+
   return PID;
 }
 
