@@ -42,6 +42,21 @@ int sys_fork()
   int PID=-1;
   //Gets a free task struct. If none are available, returns ENOMEM
   if(list_empty(&freequeue)) return -ENOMEM;
+
+  int logical_page[NUM_PAG_DATA];  
+  /*Si assegurem que hi ha prou frames abans de agafar un task_union free
+	no cal que despres alliberem el task_union si ens donem compte que no teniem
+	prous frames. Gran exito*/
+  for(int i=0; i<NUM_PAG_DATA; i++){
+	logical_page[i] = alloc_frame();
+	if(logical_page[i] < 0){
+		//ALLIBERAR TOTS ELS FRAMES
+		for(int j=0; j<i; j++){
+			free_frame(logical_page[j]);
+		}
+		return -ENOMEM;
+	}
+  }
   struct list_head * child_list_head = list_first(&freequeue);
   list_del(child_list_head);
   union task_union * father_task_union = (union task_union *) current();
@@ -53,17 +68,6 @@ int sys_fork()
 
   allocate_DIR(&child_task_union->task);
   page_table_entry *child_pt = get_PT(&child_task_union->task);
-
-  for(int i=0; i<NUM_PAG_DATA; i++){
-	  int pframe = alloc_frame();
-	  if(pframe < 0){
-		  //ALLIBERAR TOTS ELS FRAMES
-		  //ALLIBERAR EL PROCES (AL PRUCÉS)
-		  return -ENOMEM;
-	  }
-	  //The first data logic page begins at PAG_LOG_INIT_DATA
-	  set_ss_pag(child_pt, PAG_LOG_INIT_DATA+i, pframe);
-  }
 
   return PID;
 }
