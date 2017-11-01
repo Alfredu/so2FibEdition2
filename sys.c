@@ -96,6 +96,19 @@ int sys_fork()
 
 void sys_exit()
 {  
+        int p;
+        /* Alliberem estructures de dades */
+        struct task_struct * current_task_struct = current(); // PCB actual
+        page_table_entry * current_page_table = get_PT(current_task_struct); // Taula de pagines del PCB
+        
+        for (p=PAG_LOG_INIT_DATA; p<TOTAL_PAGES; p++) {
+            //Alliberem els 20 bits de pbase_addr, que conte numero de pag fisica (no @) de cada pag
+            free_frame(current_page_table[p].bits.pbase_addr);
+        }
+        
+        
+        
+        /* Falta scheduler per escollir nou proces a executar i fer el canvi de context */
 }
 
 int sys_write(int fd, char * buffer, int size) {
