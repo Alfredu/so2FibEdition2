@@ -148,7 +148,7 @@ void task_switch(union task_union *t) {
 }
 
 
-void getNextPid(){
+int getNextPid(){
 	nextPid+=1;
 	return nextPid;
 }

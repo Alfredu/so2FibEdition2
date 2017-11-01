@@ -110,7 +110,11 @@ int sys_fork()
 	//flush del tlb per asegurarnos que no hi han traduccions als frames del fill
 	set_cr3(get_DIR(&father_task_union->task));
 	child_task_union->task.PID = getNextPid();
-	
+
+	//Fa Modificar la kernel stack del nou proces perque el valor de retorn sigui 0
+
+
+	return child_task_union->task.PID;
 }
 
 void sys_exit()

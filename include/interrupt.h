@@ -17,5 +17,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL);
 
 void setIdt();
 
+void init_ticks();
+
 
 #endif  /* __INTERRUPT_H__ */

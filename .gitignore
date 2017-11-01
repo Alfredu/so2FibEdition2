@@ -5,3 +5,12 @@ ubuntu-xenial-16.04-cloudimg-console.log
 .vagrant/*
 bootstrap.sh
 .vscode/c_cpp_properties.json
+*.o
+*.s
+bootsect
+build
+system
+system.out
+user
+user.out
+zeos.bin
