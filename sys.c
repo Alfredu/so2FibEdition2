@@ -39,7 +39,6 @@ int sys_getpid()
 
 int sys_fork()
 {
-	int PID=1;
 	//Gets a free task struct. If none are available, returns ENOMEM
 	if(list_empty(&freequeue)) return -ENOMEM;
 
@@ -105,25 +104,28 @@ int sys_fork()
 		la entrada de la taula del pare.*/ 
 		//Multipliquem per page_size per tenir la ADREÇA logica. No volem la pagina, volem adreça.
 		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)((tmp_logpage)*PAGE_SIZE), PAGE_SIZE);
+		//Desfem la traducció de tmp_logpage al child_frames[i]
+		del_ss_pag(father_pt, tmp_logpage);
 	}
-	return PID;
+	//flush del tlb per asegurarnos que no hi han traduccions als frames del fill
+	set_cr3(get_DIR(&father_task_union->task));
+	child_task_union->task.PID = getNextPid();
+	
 }
 
 void sys_exit()
 {  
-        int p;
-        /* Alliberem estructures de dades */
-        struct task_struct * current_task_struct = current(); // PCB actual
-        page_table_entry * current_page_table = get_PT(current_task_struct); // Taula de pagines del PCB
-        
-        for (p=PAG_LOG_INIT_DATA; p<TOTAL_PAGES; p++) {
-            //Alliberem els 20 bits de pbase_addr, que conte numero de pag fisica (no @) de cada pag
-            free_frame(current_page_table[p].bits.pbase_addr);
-        }
-        
-        
-        
-        /* Falta scheduler per escollir nou proces a executar i fer el canvi de context */
+	int p;
+	/* Alliberem estructures de dades */
+	struct task_struct * current_task_struct = current(); // PCB actual
+	free_user_pages(current_task_struct);
+	// page_table_entry * current_page_table = get_PT(current_task_struct); // Taula de pagines del PCB
+	// free_user_pages
+	// for (p=PAG_LOG_INIT_DATA; p<TOTAL_PAGES; p++) {
+	// 	//Alliberem els 20 bits de pbase_addr, que conte numero de pag fisica (no @) de cada pag
+	// 	free_frame(current_page_table[p].bits.pbase_addr);
+	// }
+	/* Falta scheduler per escollir nou proces a executar i fer el canvi de context */
 }
 
 int sys_write(int fd, char * buffer, int size) {

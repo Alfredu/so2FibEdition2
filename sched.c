@@ -19,6 +19,7 @@ struct list_head freequeue;
 struct list_head readyqueue;
 union task_union * task1;
 struct task_struct *task1_task;
+unsigned int nextPid;
 
 extern struct list_head blocked;
 
@@ -85,6 +86,7 @@ void init_task1(void)
 	list_del(process_task1_list_head);	
 	union task_union * process_task1_task_union = (union task_union *)list_head_to_task_struct(process_task1_list_head);
 	process_task1_task_union->task.PID = 1;
+	nextPid = 13;
 	allocate_DIR(&process_task1_task_union->task);
 	set_user_pages(&process_task1_task_union->task);	
 	tss.esp0 = KERNEL_ESP(process_task1_task_union);
@@ -112,7 +114,8 @@ struct task_struct* current()
   );
   return (struct task_struct*)(ret_value&0xfffff000);
 }
-extern void inner_task_switch(union task_union *new_t){
+
+void inner_task_switch(union task_union *new_t){
 	tss.esp0 = KERNEL_ESP(new_t);
 	set_cr3(new_t->task.dir_pages_baseAddr);
 	struct task_struct * current_task = current();	
@@ -142,6 +145,12 @@ void task_switch(union task_union *t) {
 	asm("popl %ebx;"
 		"popl %edi;"
 		"popl %esi;");
+}
+
+
+void getNextPid(){
+	nextPid+=1;
+	return nextPid;
 }
 
 
