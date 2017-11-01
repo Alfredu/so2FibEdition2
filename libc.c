@@ -110,6 +110,14 @@ int fork(){
   return ret;
 }
 
+void exit() {
+   
+   asm("movl $1, %eax;"
+      "int $0x80;"
+    );
+   
+}
+
 void perror(){
   char * buffer = sys_errlist[errno];
   write(1, buffer, strlen(buffer));

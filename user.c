@@ -49,7 +49,6 @@ int __attribute__ ((__section__(".text.main")))
 		perror();
 	}
  	while(1){
-
  	}
  	return 0;
 }
