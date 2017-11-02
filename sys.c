@@ -12,7 +12,6 @@
 #include <mm_address.h>
 
 #include <sched.h>
-
 #include <errno.h>
 
 #define LECTURA 0
@@ -120,23 +119,17 @@ int sys_fork()
 	child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
 	child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
 	list_add_tail(&child_task_union->task.list, &readyqueue);
-	provaFork = child_task_union;
 	return child_task_union->task.PID;
 }
 
 void sys_exit()
 {  
-	int p;
 	/* Alliberem estructures de dades */
 	struct task_struct * current_task_struct = current(); // PCB actual
 	free_user_pages(current_task_struct);
-	// page_table_entry * current_page_table = get_PT(current_task_struct); // Taula de pagines del PCB
-	// free_user_pages
-	// for (p=PAG_LOG_INIT_DATA; p<TOTAL_PAGES; p++) {
-	// 	//Alliberem els 20 bits de pbase_addr, que conte numero de pag fisica (no @) de cada pag
-	// 	free_frame(current_page_table[p].bits.pbase_addr);
-	// }
+	list_add_tail(&current_task_struct->list, &freequeue);
 	/* Falta scheduler per escollir nou proces a executar i fer el canvi de context */
+	sched_next_rr();
 }
 
 int sys_write(int fd, char * buffer, int size) {

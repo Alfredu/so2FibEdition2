@@ -19,22 +19,22 @@ struct task_struct {
   page_table_entry * dir_pages_baseAddr;
   unsigned long kernel_esp;
   struct list_head list;
+  unsigned int quantum;
+  enum state_t state;
 };
 
 union task_union {
   struct task_struct task;
   unsigned long stack[KERNEL_STACK_SIZE];    /* pila de sistema, per procés */
 };
-
+extern int remaining_ticks;
 extern union task_union protected_tasks[NR_TASKS+2];
 extern union task_union *task; /* Vector de tasques */
-extern struct task_struct *idle_task;
+extern union task_union *idle_task;
 extern struct task_struct *task1_task;
 
 extern struct list_head freequeue;
 extern struct list_head readyqueue;
-
-extern union task_union *provaFork;
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]
 
 #define INITIAL_ESP       	KERNEL_ESP(&task[1])
@@ -64,5 +64,7 @@ void sched_next_rr();
 void update_process_state_rr(struct task_struct *t, struct list_head *dest);
 int needs_sched_rr();
 void update_sched_data_rr();
+int get_quantum(struct task_struct *t);
+void set_quantum(struct task_struct *t, int new_quantum);
 
 #endif  /* __SCHED_H__ */
