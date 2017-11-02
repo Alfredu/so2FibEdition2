@@ -102,17 +102,18 @@ int sys_fork()
 		//PAG_LOG_INIT_DATA es on esta la primera pagina de dades.
 		//Lo mismo que NUM_PAGE_KERNEL + NUM_PAGE_CODE .
 		set_ss_pag(child_pt, PAG_LOG_INIT_DATA+i, child_frames[i]); //Associem pagina amb frame.
-		set_ss_pag(father_pt, tmp_logpage+i, child_frames[i]); //Associem la pagina temporal amb el mateix frame.
+		set_ss_pag(father_pt, tmp_logpage, child_frames[i]); //Associem la pagina temporal amb el mateix frame.
 		/*Ara hem de copiar les dades del pare al fill. Ara ja podem perque tenim
 		una pagina del pare, tmp_logpage associada a aquell frame. Copiarem allà i després borrarem
 		la entrada de la taula del pare.*/ 
 		//Multipliquem per page_size per tenir la ADREÇA logica. No volem la pagina, volem adreça.
-		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)((tmp_logpage+i)*PAGE_SIZE), PAGE_SIZE);
+		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)((tmp_logpage)*PAGE_SIZE), PAGE_SIZE);
 		//Desfem la traducció de tmp_logpage al child_frames[i]
-		del_ss_pag(father_pt, tmp_logpage+i);
+		del_ss_pag(father_pt, tmp_logpage);
+		set_cr3(get_DIR(&father_task_union->task));
 	}
 	//flush del tlb per asegurarnos que no hi han traduccions als frames del fill
-	set_cr3(get_DIR(&father_task_union->task));
+	//set_cr3(get_DIR(&father_task_union->task));
 	child_task_union->task.PID = getNextPid();
 
 	child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
