@@ -96,17 +96,18 @@ int sys_fork()
 		//No hi havia cap pagina lliure. S'hauria de alliberar tot lo que hem alocatat fins ara.
 		return -EAGAIN;
 	}
+
 	//Aqui inicialitzem les entrades de la taula de pagina de dades i stack i copiem les dades
 	for(int i=0; i<NUM_PAG_DATA; i++){
 		//PAG_LOG_INIT_DATA es on esta la primera pagina de dades.
 		//Lo mismo que NUM_PAGE_KERNEL + NUM_PAGE_CODE .
 		set_ss_pag(child_pt, PAG_LOG_INIT_DATA+i, child_frames[i]); //Associem pagina amb frame.
-		set_ss_pag(father_pt, tmp_logpage, child_frames[i]); //Associem la pagina temporal amb el mateix frame.
+		set_ss_pag(father_pt, tmp_logpage+i, child_frames[i]); //Associem la pagina temporal amb el mateix frame.
 		/*Ara hem de copiar les dades del pare al fill. Ara ja podem perque tenim
 		una pagina del pare, tmp_logpage associada a aquell frame. Copiarem allà i després borrarem
 		la entrada de la taula del pare.*/ 
 		//Multipliquem per page_size per tenir la ADREÇA logica. No volem la pagina, volem adreça.
-		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)((tmp_logpage)*PAGE_SIZE), PAGE_SIZE);
+		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)((tmp_logpage+i)*PAGE_SIZE), PAGE_SIZE);
 		//Desfem la traducció de tmp_logpage al child_frames[i]
 		del_ss_pag(father_pt, tmp_logpage);
 	}
@@ -114,20 +115,9 @@ int sys_fork()
 	set_cr3(get_DIR(&father_task_union->task));
 	child_task_union->task.PID = getNextPid();
 
-	//Fa Modificar la kernel stack del nou proces perque el valor de retorn sigui 0
-	// child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
-	// child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
-	// child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
-
-	unsigned long ebp_current,p;
-	__asm__ __volatile__(
-		"movl %%ebp,%0"
-	: "=g" (ebp_current));
-	p = ((unsigned int)ebp_current-(unsigned int)&(father_task_union->stack))/4;
-	child_task_union->stack[p-1] = 0;
-	child_task_union->stack[p] = (unsigned long)&ret_from_fork;
-	child_task_union->task.kernel_esp = (int *)&(child_task_union->stack[p-1]);
-	//Insertar en la lista de ready
+	child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
+	child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
+	child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
 	list_add_tail(&child_task_union->task.list, &readyqueue);
 	provaFork = child_task_union;
 	return child_task_union->task.PID;
