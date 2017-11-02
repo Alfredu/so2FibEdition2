@@ -48,6 +48,7 @@ int __attribute__ ((__section__(".text.main")))
 	if(write(1, ticks_s, strlen(ticks_s)) < 0){
 		perror();
 	}
+	write(1, "HOLA", strlen("HOLA"));
  	while(1){
  	}
  	return 0;

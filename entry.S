@@ -49,7 +49,7 @@
       pushl %ebx; \
       movl $__KERNEL_DS, %edx;    \
       movl %edx, %ds;           \
-      movl %edx, %es
+      movl %edx, %es;
 
 #define RESTORE_ALL \
       popl %ebx; \
@@ -62,7 +62,7 @@
       popl %ds; \
       popl %es; \
       popl %fs; \
-      popl %gs
+      popl %gs;
 
 
 #define EOI \
@@ -82,6 +82,7 @@ ENTRY(system_call_handler)
       cmpl $0, %eax
       jl err
       cmpl $MAX_SYSCALL, %eax
+      jg err
       call *sys_call_table(, %eax, 0x04);
       jmp fin
 err:

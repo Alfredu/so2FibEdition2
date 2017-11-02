@@ -32,8 +32,9 @@ extern struct task_struct *idle_task;
 extern struct task_struct *task1_task;
 
 extern struct list_head freequeue;
+extern struct list_head readyqueue;
 
-
+extern union task_union *provaFork;
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]
 
 #define INITIAL_ESP       	KERNEL_ESP(&task[1])

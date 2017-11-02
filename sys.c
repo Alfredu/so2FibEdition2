@@ -37,6 +37,10 @@ int sys_getpid()
 	return current()->PID;
 }
 
+int ret_from_fork(){
+	return 0;
+}
+
 int sys_fork()
 {
 	//Gets a free task struct. If none are available, returns ENOMEM
@@ -64,7 +68,6 @@ int sys_fork()
 	copy_data(father_task_union, child_task_union, sizeof(union task_union));
 
 	//TODO preguntar al profe que vol dir lo de modify parent table.
-
 	allocate_DIR(&child_task_union->task);
 	page_table_entry *child_pt = get_PT(&child_task_union->task);
 	page_table_entry *father_pt = get_PT(&father_task_union->task);
@@ -80,8 +83,8 @@ int sys_fork()
 		//mateixa localitzacio de memoria. Exito.
 		set_ss_pag(child_pt, i, get_frame(father_pt, i));
 	}
-	/*Pillem una pagina aixi random que estigui lliure. A partir de PAG_DATA + NUM_PAG_DATA perque
-	fins allà les omplirem a continuació.*/
+
+	/*Pillem la primera pagina que estigui lliure del papi.*/
 	unsigned int tmp_logpage=-1;
 	for(int i=PAG_LOG_INIT_DATA+NUM_PAG_DATA;i<TOTAL_PAGES;i++){
 		if(!father_pt[i].entry){
@@ -112,8 +115,21 @@ int sys_fork()
 	child_task_union->task.PID = getNextPid();
 
 	//Fa Modificar la kernel stack del nou proces perque el valor de retorn sigui 0
+	// child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
+	// child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
+	// child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
 
-
+	unsigned long ebp_current,p;
+	__asm__ __volatile__(
+		"movl %%ebp,%0"
+	: "=g" (ebp_current));
+	p = ((unsigned int)ebp_current-(unsigned int)&(father_task_union->stack))/4;
+	child_task_union->stack[p-1] = 0;
+	child_task_union->stack[p] = (unsigned long)&ret_from_fork;
+	child_task_union->task.kernel_esp = (int *)&(child_task_union->stack[p-1]);
+	//Insertar en la lista de ready
+	list_add_tail(&child_task_union->task.list, &readyqueue);
+	provaFork = child_task_union;
 	return child_task_union->task.PID;
 }
 

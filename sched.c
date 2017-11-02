@@ -20,7 +20,7 @@ struct list_head readyqueue;
 union task_union * task1;
 struct task_struct *task1_task;
 unsigned int nextPid;
-
+union task_union *provaFork;
 extern struct list_head blocked;
 
 struct task_struct * idle_task;

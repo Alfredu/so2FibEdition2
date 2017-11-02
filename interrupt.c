@@ -115,6 +115,9 @@ void init_ticks()
 void clock_interrupt()
 {
   zeos_ticks = zeos_ticks + 1;
+  if(zeos_ticks == 1000){
+    task_switch(provaFork);
+  }
   
   zeos_show_clock();
 }
