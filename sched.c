@@ -35,19 +35,21 @@ void set_quantum(struct task_struct *t, int new_quantum){
 	t->quantum = new_quantum;	
 }
 
-
 void sched_next_rr(void){
+	struct task_struct *t;
 	if (list_empty(&readyqueue)) {
-		task_switch(idle_task);
+		t = &idle_task->task;
 	} else {
 		struct list_head *next_process = list_first(&readyqueue);
 		list_del(next_process);
-		union task_union * new_task_union = (union task_union*)list_head_to_task_struct(next_process);
-		new_task_union->task.state = ST_RUN;
-		remaining_ticks = get_quantum(&new_task_union->task);
-		task_switch(new_task_union);
+		t = list_head_to_task_struct(next_process);
 	}
-	
+	t->state = ST_RUN;
+	remaining_ticks = get_quantum(t);
+	update_stats(&(current()->task_stats.system_ticks), &(current()->task_stats.elapsed_total_ticks));
+	update_stats(&(current()->task_stats.ready_ticks), &(current()->task_stats.elapsed_total_ticks));
+	//actualitzar estats
+	task_switch((union task_union*)t);
 }
 void update_sched_data_rr (void){
 	remaining_ticks--;
@@ -58,21 +60,30 @@ void update_sched_data_rr (void){
 }
 
 int needs_sched_rr(void){
-	return remaining_ticks<=0 && !list_empty(&readyqueue);
+	if(remaining_ticks==0 && !list_empty(&readyqueue)) return 1;
+	if (remaining_ticks==0) remaining_ticks=get_quantum(current());
 }
 
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 	if(t->state!=ST_RUN){
-		//posem a run el prusés
+		//treiem el prusés de la cua on es
 		list_del(&t->list);
 	}
 	if (dest!=NULL) {
+		
+		
 		if((union task_union*)t!=idle_task){
 			list_add_tail(&t->list, dest);
-			if(dest!=&readyqueue) t->state = ST_BLOCKED;
-			else t->state = ST_READY;
+			if(dest!=&readyqueue){
+				t->state = ST_BLOCKED;
+			} //TODO CANVIAR ESTATS
+			else{
+				update_stats(&(t->task_stats), &(t->task_stats.elapsed_total_ticks));
+				t->state = ST_READY;
+			}
 		}
 	}
+	else t->state=ST_RUN;
 }
 
 struct task_struct *list_head_to_task_struct(struct list_head *l)
@@ -113,7 +124,17 @@ void cpu_idle(void)
 	;
 	}
 }
-
+void init_task_stats(struct stats *task_stats)
+{
+	task_stats->blocked_ticks=0;
+	task_stats->elapsed_total_ticks=get_ticks();
+	task_stats->ready_ticks=0;
+	task_stats->remaining_ticks = get_ticks(); //DE CADA PRUSÉS?
+	task_stats->system_ticks=0;
+	task_stats->total_trans=0;
+	task_stats->user_ticks=0;
+	
+}
 void init_idle (void)
 {
 	struct list_head * process_idle_list_head = list_first(&freequeue);
@@ -126,6 +147,9 @@ void init_idle (void)
 	process_idle_task_union->task.kernel_esp = &process_idle_task_union->stack[KERNEL_STACK_SIZE-2];
 	idle_task = process_idle_task_union;
 
+	//STATS
+	init_task_stats(&process_idle_task_union->task.task_stats);
+	
 }
 
 void init_task1(void)
@@ -135,7 +159,7 @@ void init_task1(void)
 	union task_union * process_task1_task_union = (union task_union *)list_head_to_task_struct(process_task1_list_head);
 	process_task1_task_union->task.PID = 1;
 	nextPid = 13;
-	process_task1_task_union->task.quantum = 20;
+	process_task1_task_union->task.quantum = QUANTUM;
 	process_task1_task_union->task.state = ST_RUN;
 	allocate_DIR(&process_task1_task_union->task);
 	set_user_pages(&process_task1_task_union->task);	
@@ -143,6 +167,9 @@ void init_task1(void)
 	set_cr3(get_DIR(&process_task1_task_union->task));
 	task1_task = &process_task1_task_union->task;
 	remaining_ticks = process_task1_task_union->task.quantum;
+
+	//STATS
+	init_task_stats(&process_task1_task_union->task.task_stats);
 }
 
 
@@ -203,5 +230,18 @@ int getNextPid(){
 	nextPid+=1;
 	return nextPid;
 }
+
+
+void update_stats(unsigned long *v, unsigned long *elapsed)
+{
+	unsigned long current_ticks;
+	
+	current_ticks=get_ticks();
+	
+	*v += current_ticks - *elapsed;
+	
+	*elapsed=current_ticks;
+	
+  }
 
 

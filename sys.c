@@ -19,6 +19,14 @@
 #define BUFFER_SIZE 256
 extern int zeos_ticks;
 
+void switch_user_to_system(){
+	update_stats(&(current()->task_stats.user_ticks), &(current()->task_stats.elapsed_total_ticks));
+}
+
+void switch_system_to_user(){
+	update_stats(&(current()->task_stats.system_ticks), &(current()->task_stats.elapsed_total_ticks));
+}
+
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -EBADF; /*EBADF*/

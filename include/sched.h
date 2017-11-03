@@ -8,9 +8,11 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <stats.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
+#define QUANTUM 300
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
 
@@ -21,6 +23,7 @@ struct task_struct {
   struct list_head list;
   unsigned int quantum;
   enum state_t state;
+  struct stats task_stats;
 };
 
 union task_union {
@@ -67,4 +70,7 @@ void update_sched_data_rr();
 int get_quantum(struct task_struct *t);
 void set_quantum(struct task_struct *t, int new_quantum);
 
+
+//estadistica
+void update_stats(unsigned long *v, unsigned long *elapsed);
 #endif  /* __SCHED_H__ */

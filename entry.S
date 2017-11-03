@@ -71,14 +71,23 @@
 
 ENTRY(keyboard_handler)
       SAVE_ALL
+      pushl %eax
+      call switch_user_to_system
+      popl %eax
       EOI
       CALL keyboard_interrupt
+      pushl %eax
+      call switch_system_to_user
+      popl %eax
       RESTORE_ALL
       iret
 
 
 ENTRY(system_call_handler)
       SAVE_ALL
+      pushl %eax
+      call switch_user_to_system
+      popl %eax
       cmpl $0, %eax
       jl err
       cmpl $MAX_SYSCALL, %eax
@@ -89,13 +98,22 @@ err:
       movl $-38, %eax
 fin:
       movl %eax, 0x18(%esp)
+      pushl %eax
+      call switch_system_to_user
+      popl %eax
       RESTORE_ALL
       iret
 
 ENTRY(clock_handler)
       SAVE_ALL
+      pushl %eax
+      call switch_user_to_system
+      popl %eax
       EOI
       CALL clock_interrupt
+      pushl %eax
+      call switch_system_to_user
+      popl %eax
       RESTORE_ALL
       iret
       
