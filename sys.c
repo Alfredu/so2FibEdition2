@@ -169,11 +169,16 @@ int sys_gettime()
 }
 
 int sys_get_stats(int pid, struct stats * st){
+	
 	if(current()->PID == pid){
-		st = &current()->task_stats;
+		copy_to_user(&(current()->task_stats), st, sizeof(struct stats));
 		return 0;
 	}
 	else{
+		for(int i=0;i<NR_TASKS;i++){
+			copy_to_user(&(task[i].task.task_stats), st, sizeof(struct stats));
+			return 0;
+		}
 	}
 	return -1;
 }
