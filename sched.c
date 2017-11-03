@@ -60,8 +60,12 @@ void update_sched_data_rr (void){
 }
 
 int needs_sched_rr(void){
-	if(remaining_ticks==0 && !list_empty(&readyqueue)) return 1;
+	int isempty = !list_empty(&readyqueue);
+	if(remaining_ticks==0 && isempty){
+		return 1;
+	}
 	if (remaining_ticks==0) remaining_ticks=get_quantum(current());
+	return 0;
 }
 
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
@@ -72,15 +76,13 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 	if (dest!=NULL) {
 		
 		
-		if((union task_union*)t!=idle_task){
-			list_add_tail(&t->list, dest);
-			if(dest!=&readyqueue){
-				t->state = ST_BLOCKED;
-			} //TODO CANVIAR ESTATS
-			else{
-				update_stats(&(t->task_stats), &(t->task_stats.elapsed_total_ticks));
-				t->state = ST_READY;
-			}
+		list_add_tail(&t->list, dest);
+		if(dest!=&readyqueue){
+			t->state = ST_BLOCKED;
+		} //TODO CANVIAR ESTATS
+		else{
+			update_stats(&(t->task_stats), &(t->task_stats.elapsed_total_ticks));
+			t->state = ST_READY;
 		}
 	}
 	else t->state=ST_RUN;
@@ -243,5 +245,8 @@ void update_stats(unsigned long *v, unsigned long *elapsed)
 	*elapsed=current_ticks;
 	
   }
+
+
+
 
 

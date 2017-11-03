@@ -52,18 +52,40 @@ int write(int fd, char * buffer, int size){
       "movl 16(%ebp), %edx;"
       "movl $4, %eax;"
       "int $0x80;");*/
-  asm("movl %1, %%ebx;"
+
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
       "movl %2, %%ecx;"
       "movl %3, %%edx;"
       "movl $4, %%eax;"
       "int $0x80;"
       "movl %%eax, %0;"
+      "popl %%ebx;"
       : "=r" (ret)
       : "r" (fd), "m" (buffer), "r" (size));
   if (ret<0) {
     errno=-ret;
     return -1;
   }
+  return ret;
+}
+
+int get_stats(int pid, struct stats *st){
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl %2, %%ecx;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (pid), "m"(st));
+
+  if(ret<0){
+    errno=-ret;
+    return -1;
+  }
+
   return ret;
 }
 

@@ -72,5 +72,6 @@ void set_quantum(struct task_struct *t, int new_quantum);
 
 
 //estadistica
-void update_stats(unsigned long *v, unsigned long *elapsed);
+void update_stats(unsigned long *v, unsigned long *elapsed);int
+get_stats(int pid, struct stats * st);
 #endif  /* __SCHED_H__ */

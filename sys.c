@@ -11,6 +11,7 @@
 
 #include <mm_address.h>
 
+#include <list.h>
 #include <sched.h>
 #include <errno.h>
 
@@ -147,6 +148,9 @@ int sys_write(int fd, char * buffer, int size) {
 	if (size<0) return -EINVAL;
 
 	char pointer[BUFFER_SIZE];
+	if (!access_ok(VERIFY_READ, buffer, size))
+		return -EFAULT;
+		
 	while(size > BUFFER_SIZE && ret){ //in case it wrote 0 bytes. Although it always writes size.
 		copy_from_user(buffer, pointer, BUFFER_SIZE);
 		ret = sys_write_console(pointer, BUFFER_SIZE);
@@ -164,3 +168,12 @@ int sys_gettime()
 	return zeos_ticks;
 }
 
+int sys_get_stats(int pid, struct stats * st){
+	if(current()->PID == pid){
+		st = &current()->task_stats;
+		return 0;
+	}
+	else{
+	}
+	return -1;
+}
