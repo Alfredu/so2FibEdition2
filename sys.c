@@ -177,3 +177,7 @@ int sys_get_stats(int pid, struct stats * st){
 	}
 	return -1;
 }
+
+int sys_clone(void (*function) (void), void *stack) {
+	
+}
