@@ -137,7 +137,8 @@ void sys_exit()
 	struct task_struct * current_task_struct = current(); // PCB actual
 	free_user_pages(current_task_struct);
 	list_add_tail(&current_task_struct->list, &freequeue);
-	/* Falta scheduler per escollir nou proces a executar i fer el canvi de context */
+	int dirPos = get_DIR_pos(get_DIR(current_task_struct));
+	dir_references[dirPos]--;
 	sched_next_rr();
 }
 
@@ -179,5 +180,11 @@ int sys_get_stats(int pid, struct stats * st){
 }
 
 int sys_clone(void (*function) (void), void *stack) {
-	
+	if(list_empty(&freequeue)) return -ENOMEM;
+	struct list_head * child_list_head = list_first(&freequeue);
+	union task_union *father_task_union = (union task_union *) current();
+	union task_union *child_task_union = (union task_union *)list_head_to_task_struct(child_list_head);
+	copy_data(father_task_union, child_task_union, sizeof(union task_union));
+	int dirPos = get_DIR_pos(get_DIR(&father_task_union->task));
+	dir_references[dirPos]++;
 }

@@ -105,15 +105,24 @@ page_table_entry * get_PT (struct task_struct *t)
 	return (page_table_entry *)(((unsigned int)(t->dir_pages_baseAddr->bits.pbase_addr))<<12);
 }
 
+int get_DIR_pos (page_table_entry *dir) 
+{
+	int dirPos = ((unsigned int)dir - (unsigned int)dir_pages) / (TOTAL_PAGES * sizeof(page_table_entry));
+	return dirPos;
+}
+
 
 int allocate_DIR(struct task_struct *t) 
 {
-	int pos;
+	int pos = 0;
 
-	pos = ((int)t-(int)task)/sizeof(union task_union);
+	// pos = ((int)t-(int)task)/sizeof(union task_union);
 
-	t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos]; 
-
+	while(pos<NR_TASKS && dir_references[pos] != 0){
+		pos++;
+	}
+	t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos];
+	dir_references[pos]++;
 	return 1;
 }
 
@@ -244,9 +253,6 @@ void update_stats(unsigned long *v, unsigned long *elapsed)
 	
 	*elapsed=current_ticks;
 	
-  }
-
-
-
+}
 
 
