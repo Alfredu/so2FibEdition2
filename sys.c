@@ -127,6 +127,9 @@ int sys_fork()
 	child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
 	child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
 	child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
+
+	//resetegem stats del fill
+	init_task_stats(&child_task_union->task.task_stats);
 	list_add_tail(&child_task_union->task.list, &readyqueue);
 	return child_task_union->task.PID;
 }
