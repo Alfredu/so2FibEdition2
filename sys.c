@@ -118,9 +118,9 @@ int sys_fork()
 		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)((tmp_logpage)*PAGE_SIZE), PAGE_SIZE);
 		//Desfem la traducció de tmp_logpage al child_frames[i]
 		del_ss_pag(father_pt, tmp_logpage);
+		//flush del tlb per asegurarnos que no hi han traduccions als frames del fill
 		set_cr3(get_DIR(&father_task_union->task));
 	}
-	//flush del tlb per asegurarnos que no hi han traduccions als frames del fill
 	//set_cr3(get_DIR(&father_task_union->task));
 	child_task_union->task.PID = getNextPid();
 
@@ -186,10 +186,26 @@ int sys_get_stats(int pid, struct stats * st){
 
 int sys_clone(void (*function) (void), void *stack) {
 	if(list_empty(&freequeue)) return -ENOMEM;
+	//TODO Check access
 	struct list_head * child_list_head = list_first(&freequeue);
 	union task_union *father_task_union = (union task_union *) current();
 	union task_union *child_task_union = (union task_union *)list_head_to_task_struct(child_list_head);
-	copy_data(father_task_union, child_task_union, sizeof(union task_union));
+	
 	int dirPos = get_DIR_pos(get_DIR(&father_task_union->task));
 	dir_references[dirPos]++;
+
+	copy_data(father_task_union, child_task_union, sizeof(union task_union));
+
+	child_task_union->task.PID = getNextPid();
+	//Ara fem el prank enllaç dinamic com al fork
+	child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
+	child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
+	child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
+	/*Modifiquem el context guardat pel SAVE_ALL i canviem la @ret
+	per function i fem que apunti a la stack que ens dona el user*/
+	child_task_union->stack[KERNEL_STACK_SIZE-5] = function;
+	child_task_union->stack[KERNEL_STACK_SIZE-2] = stack;
+	init_task_stats(&child_task_union->task.task_stats);
+	list_add_tail(&child_task_union->task.list, &readyqueue);
+	return child_task_union->task.PID;
 }
