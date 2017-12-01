@@ -17,14 +17,19 @@ union task_union *task = &protected_tasks[1]; /* == union task_union task[NR_TAS
 
 struct list_head freequeue;
 struct list_head readyqueue;
+struct list_head blockedqueue;
 union task_union * task1;
 struct task_struct *task1_task;
 unsigned int nextPid;
 union task_union *provaFork;
-extern struct list_head blocked;
 
 union task_union *idle_task;
 int remaining_ticks;
+
+/* Semafors */
+struct semaphore semaphores[20];
+//int used_semaphores[20] = {0};
+
 
 
 int get_quantum(struct task_struct *t){
@@ -74,12 +79,10 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 		list_del(&t->list);
 	}
 	if (dest!=NULL) {
-		
-		
 		list_add_tail(&t->list, dest);
 		if(dest!=&readyqueue){
 			t->state = ST_BLOCKED;
-		} //TODO CANVIAR ESTATS
+		}
 		else{
 			update_stats(&(t->task_stats), &(t->task_stats.elapsed_total_ticks));
 			t->state = ST_READY;
@@ -191,6 +194,10 @@ void init_sched(){
 		list_add(&(task[i].task.list), &freequeue);
 	}
 	INIT_LIST_HEAD(&readyqueue);
+	INIT_LIST_HEAD(&blockedqueue);
+	for(i=0; i<NR_SEMAPHORES; i++) {
+		semaphores[i].owner = -1;
+	}
 }
 
 struct task_struct* current()

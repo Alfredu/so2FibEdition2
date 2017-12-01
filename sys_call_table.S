@@ -23,20 +23,20 @@ ENTRY (sys_call_table)
       .long sys_ni_syscall //18
       .long sys_clone //19
       .long sys_getpid //20
-      .long sys_getpid //21
-      .long sys_getpid //22
-      .long sys_getpid //23
-      .long sys_getpid //24
-      .long sys_getpid //25
-      .long sys_getpid //26
-      .long sys_getpid //27
-      .long sys_getpid //28
-      .long sys_getpid //29
-      .long sys_getpid //30
-      .long sys_getpid //31
-      .long sys_getpid //32
-      .long sys_getpid //33
-      .long sys_getpid //34
+      .long sys_sem_init //21
+      .long sys_sem_wait //22
+      .long sys_sem_signal //23
+      .long sys_sem_destroy //24
+      .long sys_ni_syscall //25
+      .long sys_ni_syscall //26
+      .long sys_ni_syscall //27
+      .long sys_ni_syscall //28
+      .long sys_ni_syscall //29
+      .long sys_ni_syscall //30
+      .long sys_ni_syscall //31
+      .long sys_ni_syscall //32
+      .long sys_ni_syscall //33
+      .long sys_ni_syscall //34
       .long sys_get_stats //35
 
 .globl MAX_SYSCALL

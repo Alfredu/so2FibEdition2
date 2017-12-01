@@ -145,3 +145,98 @@ void perror(){
   char * buffer = sys_errlist[errno];
   write(1, buffer, strlen(buffer));
 }
+
+int clone(void (*function) (void), void *stack) {
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl %2, %%ecx;"
+      "movl $19, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (function), "m" (stack));
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret;
+}
+
+int sem_init (int n_sem, unsigned int value) {
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl %2, %%ecx;"
+      "movl $21, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (n_sem), "m" (value));
+
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret; 
+}
+
+int sem_wait (int n_sem) {
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl $22, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (n_sem));
+
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret; 
+}
+
+int sem_signal (int n_sem) {
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl $23, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (n_sem));
+      
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret; 
+}
+
+
+int sem_destroy (int n_sem) {
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl $24, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (n_sem));
+      
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret; 
+}
+
+
+

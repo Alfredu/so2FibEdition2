@@ -13,6 +13,7 @@
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
 #define QUANTUM 300
+#define NR_SEMAPHORES 20
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
 
@@ -30,6 +31,14 @@ union task_union {
   struct task_struct task;
   unsigned long stack[KERNEL_STACK_SIZE];    /* pila de sistema, per procés */
 };
+
+/* Semafors */
+struct semaphore {
+  int counter;
+  int owner;
+  struct list_head queue;
+};
+extern struct semaphore semaphores[];
 extern int remaining_ticks;
 extern union task_union protected_tasks[NR_TASKS+2];
 extern union task_union *task; /* Vector de tasques */
@@ -38,6 +47,7 @@ extern struct task_struct *task1_task;
 
 extern struct list_head freequeue;
 extern struct list_head readyqueue;
+extern struct list_head blockedqueue;
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]
 
 #define INITIAL_ESP       	KERNEL_ESP(&task[1])

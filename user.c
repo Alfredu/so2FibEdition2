@@ -37,13 +37,32 @@ long outer (long n)
 	return acum;
 }
 
+int cont = 0;
+void printeja(){
+	/*sem_wait(0);
+	cont++;
+	char buff[128];
+	itoa(cont, buff);
+	write(1, buff, strlen(buff));
+	exit(0);*/
+
+}
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
     /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
-	runjp_rank();
- 	while(1){
+	//runjp_rank();
+ 	int stack[1024];
+	int stack2[1024];
+	 sem_init(0,1);
+	 for(int i=0; i<2; i++){
+		// if(i==0)
+		 clone(&printeja, stack);
+		 //else
+		 //clone(&printeja, stack2);
+	 }
+	 while(1){
 	 }
  	
  	return 0;
