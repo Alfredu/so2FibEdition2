@@ -164,7 +164,6 @@ int sys_write(int fd, char * buffer, int size) {
 	ret = sys_write_console(pointer, size);
 
 	return ret;
-
 }
 
 int sys_gettime() 
