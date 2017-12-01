@@ -75,6 +75,7 @@ int get_stats(int pid, struct stats *st){
   asm("pushl %%ebx;"
       "movl %1, %%ebx;"
       "movl %2, %%ecx;"
+      "movl $35, %%eax;"
       "int $0x80;"
       "movl %%eax, %0;"
       "popl %%ebx;"

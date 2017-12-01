@@ -61,6 +61,8 @@ page_table_entry * get_PT (struct task_struct *t) ;
 
 page_table_entry * get_DIR (struct task_struct *t) ;
 
+int get_DIR_pos (page_table_entry *dir);
+
 int getNextPid();
 /* Headers for the scheduling policy */
 void sched_next_rr();
@@ -70,8 +72,12 @@ void update_sched_data_rr();
 int get_quantum(struct task_struct *t);
 void set_quantum(struct task_struct *t, int new_quantum);
 
-
-//estadistica
+/* Estadística */
 void update_stats(unsigned long *v, unsigned long *elapsed);int
 get_stats(int pid, struct stats * st);
+
+
+
 #endif  /* __SCHED_H__ */
+
+
