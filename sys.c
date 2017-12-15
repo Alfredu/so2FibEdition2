@@ -138,10 +138,14 @@ void sys_exit()
 {  
 	/* Alliberem estructures de dades */
 	struct task_struct * current_task_struct = current(); // PCB actual
-	free_user_pages(current_task_struct);
-	list_add_tail(&current_task_struct->list, &freequeue);
+
 	int dirPos = get_DIR_pos(get_DIR(current_task_struct));
 	dir_references[dirPos]--;
+	if(dir_references == 0){
+		free_user_pages(current_task_struct);
+	}
+	current_task_struct->PID = -1;
+	list_add_tail(&current_task_struct->list, &freequeue);
 	sched_next_rr();
 }
 
@@ -179,9 +183,12 @@ int sys_get_stats(int pid, struct stats * st){
 	}
 	else{
 		for(int i=0;i<NR_TASKS;i++){
-			copy_to_user(&(task[i].task.task_stats), st, sizeof(struct stats));
-			return 0;
+			if(task[i].task.PID == pid){
+				copy_to_user(&(task[i].task.task_stats), st, sizeof(struct stats));
+				return 0;
+			}
 		}
+	
 	}
 	return -1;
 }

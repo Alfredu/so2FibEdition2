@@ -110,7 +110,7 @@ page_table_entry * get_PT (struct task_struct *t)
 
 int get_DIR_pos (page_table_entry *dir) 
 {
-	int dirPos = ((unsigned int)dir - (unsigned int)dir_pages) / (TOTAL_PAGES * sizeof(page_table_entry));
+	int dirPos = ((unsigned int)dir - (unsigned int)&dir_pages) / (TOTAL_PAGES * sizeof(page_table_entry));
 	return dirPos;
 }
 
@@ -243,6 +243,7 @@ void task_switch(union task_union *t) {
 	inner_task_switch(t);
 
 	asm("popl %ebx;"
+		"popl %ebx;"
 		"popl %edi;"
 		"popl %esi;");	
 }

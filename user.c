@@ -39,12 +39,12 @@ long outer (long n)
 
 int cont = 0;
 void printeja(){
-	/*sem_wait(0);
+	//sem_wait(0);
 	cont++;
 	char buff[128];
 	itoa(cont, buff);
 	write(1, buff, strlen(buff));
-	exit(0);*/
+	exit(0);
 
 }
 int __attribute__ ((__section__(".text.main")))
@@ -57,10 +57,10 @@ int __attribute__ ((__section__(".text.main")))
 	int stack2[1024];
 	 sem_init(0,1);
 	 for(int i=0; i<2; i++){
-		// if(i==0)
-		 clone(&printeja, stack);
-		 //else
-		 //clone(&printeja, stack2);
+		if(i==0)
+		 clone(&printeja, &stack[1024]);
+		 else
+		 clone(&printeja, &stack2[1024]);
 	 }
 	 while(1){
 	 }

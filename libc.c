@@ -156,7 +156,7 @@ int clone(void (*function) (void), void *stack) {
       "movl %%eax, %0;"
       "popl %%ebx;"
       : "=r" (ret)
-      : "r" (function), "m" (stack));
+      : "g" (function), "g" (stack));
   if (ret<0) {
     errno=-ret;
     return -1;
