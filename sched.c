@@ -212,9 +212,12 @@ struct task_struct* current()
 }
 
 void inner_task_switch(union task_union *new_t){
+	
+	struct task_struct * current_task = current();
 	tss.esp0 = KERNEL_ESP(new_t);
-	set_cr3(new_t->task.dir_pages_baseAddr);
-	struct task_struct * current_task = current();	
+	if(get_DIR_pos(get_DIR(new_t)) != get_DIR_pos(get_DIR(current_task))){
+		set_cr3(new_t->task.dir_pages_baseAddr);
+	}	
 	unsigned long *ebp;
 
 	__asm__("movl %%ebp, %0;"
@@ -232,6 +235,7 @@ void inner_task_switch(union task_union *new_t){
 }
 
 void task_switch(union task_union *t) {
+	struct task_struct *current_task = current();
 	asm("pushl %esi;"
 		"pushl %edi;"
 		"pushl %ebx;");
