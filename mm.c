@@ -36,7 +36,13 @@ TSS         tss;
 /***********************************************/
 
 /* Init page table directory */
-  
+
+void init_dir_references()
+{
+  for(int i=0; i<NR_TASKS;i++){
+    dir_references[i] = 0;
+  }
+}
 void init_dir_pages()
 {
 int i;
@@ -140,6 +146,7 @@ void init_mm()
   allocate_DIR(&task[0].task);
   set_cr3(get_DIR(&task[0].task));
   set_pe_flag();
+  init_dir_references();
 }
 /***********************************************/
 /************** SEGMENTATION MANAGEMENT ********/
