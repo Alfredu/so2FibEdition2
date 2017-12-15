@@ -233,7 +233,10 @@ int sys_sem_wait(int n_sem) {
 		// TODO distingir
 		update_process_state_rr(current(), &semaphores[n_sem].queue);
 		sched_next_rr();
-		return 0;
+		if(semaphores[n_sem].owner != -1)
+			return 0;
+		else
+			return -ENAVAIL;
 	}
 }
 
@@ -246,22 +249,22 @@ int sys_sem_signal(int n_sem) {
 		struct task_struct *process_to_unlock;
 		process_to_unlock = list_head_to_task_struct(list_first(&semaphores[n_sem].queue));
 		update_process_state_rr(process_to_unlock, &readyqueue);
+		return 0;
 	}
 }
 
 int sys_sem_destroy(int n_sem) {
 	if(n_sem<0 || n_sem > NR_SEMAPHORES)
 		return -ENAVAIL;
-	if (current()->PID == semaphores[n_sem].owner) {
-		// TODO: destruïr
-		struct semaphore semaphore_to_destroy;
-		if(!list_empty(&semaphore_to_destroy.queue)){
-
-		}
-		semaphore_to_destroy.owner = -1;
-	}
-	else{
+	if (current()->PID != semaphores[n_sem].owner) {
 		return -ENAVAIL;
+	} else {
+		struct semaphore semaphore_to_destroy;
+		semaphore_to_destroy.owner = -1;
+		while(!list_empty(&semaphore_to_destroy.queue)){
+			struct list_head *process_blocked = list_first(&semaphore_to_destroy.queue);
+			update_process_state_rr(process_blocked, &readyqueue);
+		}
+		return 0;
 	}
-	return 0;
 }
