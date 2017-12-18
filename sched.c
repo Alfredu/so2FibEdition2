@@ -65,8 +65,7 @@ void update_sched_data_rr (void){
 }
 
 int needs_sched_rr(void){
-	int isempty = !list_empty(&readyqueue);
-	if(remaining_ticks==0 && isempty){
+	if(remaining_ticks==0 && !list_empty(&readyqueue)){
 		return 1;
 	}
 	if (remaining_ticks==0) remaining_ticks=get_quantum(current());
