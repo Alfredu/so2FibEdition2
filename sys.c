@@ -196,12 +196,14 @@ int sys_get_stats(int pid, struct stats * st){
 int sys_clone(void (*function) (void), void *stack) {
 	if(list_empty(&freequeue)) return -ENOMEM;
 	//TODO Check access
+	if (!access_ok(VERIFY_WRITE, stack,4) || !access_ok(VERIFY_READ, function, 4)) return -EFAULT;
 	struct list_head * child_list_head = list_first(&freequeue);
+	list_del(child_list_head);
 	union task_union *father_task_union = (union task_union *) current();
 	union task_union *child_task_union = (union task_union *)list_head_to_task_struct(child_list_head);
 	
 	int dirPos = get_DIR_pos(get_DIR(&father_task_union->task));
-	dir_references[dirPos]++;
+	dir_references[dirPos]++;	
 
 	copy_data(father_task_union, child_task_union, sizeof(union task_union));
 
@@ -220,13 +222,14 @@ int sys_clone(void (*function) (void), void *stack) {
 }
 
 int sys_sem_init(int n_sem, unsigned int value) {
-	if(n_sem < 0 || n_sem > NR_SEMAPHORES) return -ENAVAIL;
+	if(n_sem < 0 || n_sem >= NR_SEMAPHORES) return -ENAVAIL;
 	if(semaphores[n_sem].owner!=-1){
 		return -ENAVAIL;
 	}
 	semaphores[n_sem].owner = current()->PID;
 	semaphores[n_sem].counter = value;
 	INIT_LIST_HEAD(&semaphores[n_sem].queue);
+	return 0;
 }
 
 
@@ -236,6 +239,7 @@ int sys_sem_wait(int n_sem) {
 
 	if (semaphores[n_sem].counter > 0) {
 		semaphores[n_sem].counter--;
+		return 0;
 	} else {
 		// TODO distingir
 		update_process_state_rr(current(), &semaphores[n_sem].queue);
@@ -254,10 +258,12 @@ int sys_sem_signal(int n_sem) {
 		semaphores[n_sem].counter++;
 	} else {
 		struct task_struct *process_to_unlock;
-		process_to_unlock = list_head_to_task_struct(list_first(&semaphores[n_sem].queue));
+		struct list_head *sem_list = list_first(&semaphores[n_sem].queue);
+		list_del(sem_list);
+		process_to_unlock = list_head_to_task_struct(list_first(sem_list));
 		update_process_state_rr(process_to_unlock, &readyqueue);
-		return 0;
 	}
+	return 0;
 }
 
 int sys_sem_destroy(int n_sem) {
@@ -265,12 +271,13 @@ int sys_sem_destroy(int n_sem) {
 		return -ENAVAIL;
 	if (current()->PID != semaphores[n_sem].owner) {
 		return -ENAVAIL;
-	} else {
-		struct semaphore semaphore_to_destroy;
-		semaphore_to_destroy.owner = -1;
-		while(!list_empty(&semaphore_to_destroy.queue)){
-			struct list_head *process_blocked = list_first(&semaphore_to_destroy.queue);
-			update_process_state_rr(process_blocked, &readyqueue);
+	} 
+	else {
+		semaphores[n_sem].owner = -1;
+		while(!list_empty(&semaphores[n_sem].queue)){
+			struct list_head *process_blocked = list_first(&semaphores[n_sem].queue);
+			list_del(process_blocked);
+			update_process_state_rr(list_head_to_task_struct(process_blocked), &readyqueue);
 		}
 		return 0;
 	}
