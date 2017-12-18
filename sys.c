@@ -138,10 +138,14 @@ void sys_exit()
 {  
 	/* Alliberem estructures de dades */
 	struct task_struct * current_task_struct = current(); // PCB actual
-	free_user_pages(current_task_struct);
-	list_add_tail(&current_task_struct->list, &freequeue);
+
 	int dirPos = get_DIR_pos(get_DIR(current_task_struct));
 	dir_references[dirPos]--;
+	if(dir_references == 0){
+		free_user_pages(current_task_struct);
+	}
+	current_task_struct->PID = -1;
+	list_add_tail(&current_task_struct->list, &freequeue);
 	sched_next_rr();
 }
 
@@ -179,9 +183,12 @@ int sys_get_stats(int pid, struct stats * st){
 	}
 	else{
 		for(int i=0;i<NR_TASKS;i++){
-			copy_to_user(&(task[i].task.task_stats), st, sizeof(struct stats));
-			return 0;
+			if(task[i].task.PID == pid){
+				copy_to_user(&(task[i].task.task_stats), st, sizeof(struct stats));
+				return 0;
+			}
 		}
+	
 	}
 	return -1;
 }
@@ -214,8 +221,8 @@ int sys_clone(void (*function) (void), void *stack) {
 
 int sys_sem_init(int n_sem, unsigned int value) {
 	if(n_sem < 0 || n_sem > NR_SEMAPHORES) return -ENAVAIL;
-	if(!semaphores[n_sem].owner<0){
-		return -ENAVAIL;//TODO canviar aixo jej :3
+	if(semaphores[n_sem].owner!=-1){
+		return -ENAVAIL;
 	}
 	semaphores[n_sem].owner = current()->PID;
 	semaphores[n_sem].counter = value;
@@ -230,10 +237,13 @@ int sys_sem_wait(int n_sem) {
 	if (semaphores[n_sem].counter > 0) {
 		semaphores[n_sem].counter--;
 	} else {
-		// TODO?: bloquejar
+		// TODO distingir
 		update_process_state_rr(current(), &semaphores[n_sem].queue);
 		sched_next_rr();
-		return 0;
+		if(semaphores[n_sem].owner != -1)
+			return 0;
+		else
+			return -ENAVAIL;
 	}
 }
 
@@ -243,16 +253,25 @@ int sys_sem_signal(int n_sem) {
 	if (list_empty(&semaphores[n_sem].queue)) {
 		semaphores[n_sem].counter++;
 	} else {
-		// TODO: desbloquejar
 		struct task_struct *process_to_unlock;
 		process_to_unlock = list_head_to_task_struct(list_first(&semaphores[n_sem].queue));
 		update_process_state_rr(process_to_unlock, &readyqueue);
+		return 0;
 	}
 }
 
 int sys_sem_destroy(int n_sem) {
-	if (current()->PID == semaphores[n_sem].owner) {
-		// TODO: destruïr
-
+	if(n_sem<0 || n_sem > NR_SEMAPHORES)
+		return -ENAVAIL;
+	if (current()->PID != semaphores[n_sem].owner) {
+		return -ENAVAIL;
+	} else {
+		struct semaphore semaphore_to_destroy;
+		semaphore_to_destroy.owner = -1;
+		while(!list_empty(&semaphore_to_destroy.queue)){
+			struct list_head *process_blocked = list_first(&semaphore_to_destroy.queue);
+			update_process_state_rr(process_blocked, &readyqueue);
+		}
+		return 0;
 	}
 }
