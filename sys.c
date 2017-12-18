@@ -159,7 +159,7 @@ int sys_write(int fd, char * buffer, int size) {
 	if (!access_ok(VERIFY_READ, buffer, size))
 		return -EFAULT;
 		
-	while(size > BUFFER_SIZE && ret){ //in case it wrote 0 bytes. Although it always writes size.
+	while(size > BUFFER_SIZE && ret){ //in case it wrote 0 bytes. Although it always writes "size".
 		copy_from_user(buffer, pointer, BUFFER_SIZE);
 		ret = sys_write_console(pointer, BUFFER_SIZE);
 		size = size - BUFFER_SIZE;
@@ -169,13 +169,25 @@ int sys_write(int fd, char * buffer, int size) {
 
 	return ret;
 }
+//Read independent
+int sys_read(int fd, char *buffer, int count)
+{
+	int ret = check_fd(fd, LECTURA);
+	if(ret<0) return ret;
+	if (!buffer) return -EFAULT;
+	if (count<0) return -EINVAL;
+	char pointer[BUFFER_SIZE];
+	if (!access_ok(VERIFY_WRITE, buffer, count))
+		return -EFAULT;
+	ret = sys_read_keyboard(buffer, count);
+}
 
 int sys_gettime() 
 {
 	return zeos_ticks;
 }
 
-int sys_get_stats(int pid, struct stats * st){
+int sys_get_stats(int pid, struct stats *st){
 	
 	if(current()->PID == pid){
 		copy_to_user(&(current()->task_stats), st, sizeof(struct stats));

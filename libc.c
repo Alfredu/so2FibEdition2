@@ -70,6 +70,24 @@ int write(int fd, char * buffer, int size){
   return ret;
 }
 
+int read(int fd, char *buffer, int count){
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl %2, %%ecx;"
+      "movl %3, %%edx;"
+      "movl $5, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (fd), "m" (buffer), "r" (count));
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret;
+}
 int get_stats(int pid, struct stats *st){
   int ret;
   asm("pushl %%ebx;"

@@ -14,3 +14,8 @@ int sys_write_console(char *buffer,int size)
   
   return size;
 }
+
+int sys_read_keyboard(char *buffer, int size)
+{
+  printk("HOLI");
+}
