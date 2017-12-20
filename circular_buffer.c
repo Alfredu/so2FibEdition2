@@ -1,12 +1,5 @@
 //basat en https://embeddedartistry.com/blog/2017/4/6/circular-buffers-in-cc <3
-#ifndef CIRCULAR_BUFFER
-#define CIRCULAR_BUFFER
-
-typedef struct{
-    unsigned int head, tail, size, num_elem;
-    char *buffer;
-}circular_buffer;
-
+#include <circular_buffer.h>
 void circular_buffer_init(circular_buffer *cb, int size)
 {
     char buff[size];
@@ -58,4 +51,3 @@ int circular_buf_read(circular_buffer *cbuf, char *data)
         return 0;
     }
 }
-#endif

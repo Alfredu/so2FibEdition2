@@ -15,6 +15,8 @@ union task_union protected_tasks[NR_TASKS+2]
 
 union task_union *task = &protected_tasks[1]; /* == union task_union task[NR_TASKS] */
 
+circular_buffer cb;
+
 struct list_head freequeue;
 struct list_head readyqueue;
 struct list_head blockedqueue;

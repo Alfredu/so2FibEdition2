@@ -1,11 +1,10 @@
 #include <io.h>
 #include <utils.h>
 #include <list.h>
-#include <circularBuffer.h>
+#include <circular_buffer.h>
 #include <sched.h>
 // Queue for blocked processes in I/O 
 struct list_head blocked;
-
 int sys_write_console(char *buffer,int size)
 {
   int i;
@@ -22,6 +21,10 @@ int sys_read_keyboard(char *buffer, int size)
 
   if(list_empty(&keyboardqueue)){
     //llegim
+
+    if(size <= circular_buf_num_elems(&cb)){
+
+    }
 
 
   }

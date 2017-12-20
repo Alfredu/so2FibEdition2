@@ -9,7 +9,7 @@
 #include <types.h>
 #include <mm_address.h>
 #include <stats.h>
-
+#include <circular_buffer.h>
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
 #define QUANTUM 300
@@ -49,10 +49,13 @@ extern union task_union *task; /* Vector de tasques */
 extern union task_union *idle_task;
 extern struct task_struct *task1_task;
 
+extern circular_buffer cb;
+
 extern struct list_head freequeue;
 extern struct list_head readyqueue;
 extern struct list_head blockedqueue;
 extern struct list_head keyboardqueue;
+
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]
 
 #define INITIAL_ESP       	KERNEL_ESP(&task[1])
