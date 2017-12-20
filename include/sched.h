@@ -16,7 +16,10 @@
 #define NR_SEMAPHORES 20
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
-
+struct kbdata{
+  int to_read, already_read;
+  char *char_buffer;
+};
 struct task_struct {
   int PID;			/* Process ID. This MUST be the first field of the struct. */
   page_table_entry * dir_pages_baseAddr;
@@ -25,6 +28,7 @@ struct task_struct {
   unsigned int quantum;
   enum state_t state;
   struct stats task_stats;
+  struct kbdata kb_data;
 };
 
 union task_union {
@@ -48,6 +52,7 @@ extern struct task_struct *task1_task;
 extern struct list_head freequeue;
 extern struct list_head readyqueue;
 extern struct list_head blockedqueue;
+extern struct list_head keyboardqueue;
 #define KERNEL_ESP(t)       	(DWord) &(t)->stack[KERNEL_STACK_SIZE]
 
 #define INITIAL_ESP       	KERNEL_ESP(&task[1])

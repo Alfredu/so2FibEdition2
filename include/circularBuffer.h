@@ -58,4 +58,4 @@ int circular_buf_read(circular_buffer *cbuf, char *data)
         return 0;
     }
 }
-#endif CIRCULAR_BUFFER
+#endif

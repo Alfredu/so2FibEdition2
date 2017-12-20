@@ -18,6 +18,7 @@ union task_union *task = &protected_tasks[1]; /* == union task_union task[NR_TAS
 struct list_head freequeue;
 struct list_head readyqueue;
 struct list_head blockedqueue;
+struct list_head keyboardqueue;
 union task_union * task1;
 struct task_struct *task1_task;
 unsigned int nextPid;
@@ -194,6 +195,7 @@ void init_sched(){
 	}
 	INIT_LIST_HEAD(&readyqueue);
 	INIT_LIST_HEAD(&blockedqueue);
+	INIT_LIST_HEAD(&keyboardqueue);
 	for(i=0; i<NR_SEMAPHORES; i++) {
 		semaphores[i].owner = -1;
 	}
