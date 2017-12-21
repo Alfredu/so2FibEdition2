@@ -6,6 +6,7 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
+#include <circular_buffer.h>
 
 #include <zeos_interrupt.h>
 
@@ -102,9 +103,12 @@ void keyboard_interrupt()
     Byte keyValue = char_map[key&0x7F];
     if(!keyValue) keyValue = 'C';
     printc_xy(0,0,keyValue);
-  }
 
-  //printk("hola");
+    int ret = circular_buf_put(&cb, keyValue);
+    if(ret<0 && list_empty(&keyboardqueue)){
+      //mala sort hoiga
+    }
+  }
 }
 
 void init_ticks()
