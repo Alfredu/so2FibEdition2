@@ -16,16 +16,16 @@ void circular_buffer_reset(circular_buffer *cb)
     cb->tail = 0;
 }
 
-int circular_buf_empty(circular_buffer cbuf)
+int circular_buf_empty(circular_buffer *cbuf)
 {
     //Si apunten al mateix esque esta buit
-    return (cbuf.head == cbuf.tail);
+    return (cbuf->head == cbuf->tail);
 }
 
-int circular_buf_full(circular_buffer cbuf)
+int circular_buf_full(circular_buffer *cbuf)
 {
     // Full vol dir que el head esta una posicio per darrere del tail
-    return ((cbuf.head + 1) % cbuf.size) == cbuf.tail;
+    return ((cbuf->head + 1) % cbuf->size) == cbuf->tail;
 }
 
 int circular_buf_num_elems(circular_buffer *cb) {
@@ -34,7 +34,7 @@ int circular_buf_num_elems(circular_buffer *cb) {
 
 int circular_buf_put(circular_buffer *cbuf, char data)
 {
-    if(circular_buf_full(*cbuf)) return -1;
+    if(circular_buf_full(cbuf)) return -1;
     else{
         cbuf->buffer[cbuf->tail] = data;
         cbuf->tail = (cbuf->tail +1)%cbuf->size; //En veritat no caldria perque no sobrescrivim
@@ -44,7 +44,7 @@ int circular_buf_put(circular_buffer *cbuf, char data)
 }
 int circular_buf_read(circular_buffer *cbuf, char *data)
 {
-    if(circular_buf_empty(*cbuf)) return -1;
+    if(circular_buf_empty(cbuf)) return -1;
     else{
         *data = cbuf->buffer[cbuf->head];
         cbuf->head = (cbuf->head +1)%cbuf->size;

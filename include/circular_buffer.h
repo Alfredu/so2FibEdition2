@@ -10,8 +10,8 @@ typedef struct{
 void circular_buffer_init(circular_buffer *cb, int size);
 void circular_buffer_reset(circular_buffer *cb);
 
-int circular_buf_empty(circular_buffer cbuf);
-int circular_buf_full(circular_buffer cbuf);
+int circular_buf_empty(circular_buffer *cbuf);
+int circular_buf_full(circular_buffer *cbuf);
 int circular_buf_num_elems(circular_buffer *cb);
 
 int circular_buf_put(circular_buffer *cbuf, char data);

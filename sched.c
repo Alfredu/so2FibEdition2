@@ -201,6 +201,7 @@ void init_sched(){
 	for(i=0; i<NR_SEMAPHORES; i++) {
 		semaphores[i].owner = -1;
 	}
+	circular_buffer_init(&cb, 4096);
 }
 
 struct task_struct* current()
