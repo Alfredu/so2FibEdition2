@@ -19,8 +19,8 @@ int sys_read_keyboard(char *buffer, int size)
 {
   struct task_struct *current_tu = current();
   int bytes_read = 0;
-
-  while(bytes_read < size){
+  current_tu->kb_data.to_read = size;
+  while(current_tu->kb_data.to_read > 0){
     char key;
     int i=0;
     if(list_empty(&keyboardqueue)){
@@ -28,7 +28,7 @@ int sys_read_keyboard(char *buffer, int size)
       if(size <= circular_buf_num_elems(&cb)){
         //legim i tal dia farà un any
         current_tu->kb_data.already_read = size;
-        current_tu->kb_data.to_read = 6969;
+        current_tu->kb_data.to_read = 0;
         while(i<size){
           circular_buf_read(&cb, &key);
           copy_to_user(&key, &buffer[i], 1);
@@ -46,7 +46,6 @@ int sys_read_keyboard(char *buffer, int size)
           while(!circular_buf_empty(&cb)){
             circular_buf_read(&cb, &key);
             copy_to_user(&key, &buffer[i], 1);
-            bytes_read++;
             i++;
           }
         }

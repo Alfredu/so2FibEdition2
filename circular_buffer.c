@@ -46,7 +46,7 @@ int circular_buf_read(circular_buffer *cbuf, char *data)
 {
     if(circular_buf_empty(cbuf)) return -1;
     else{
-        *data = cbuf->buffer[cbuf->head];
+        *data = cbuf->buffer[cbuf->tail];
         cbuf->tail = (cbuf->tail +1)%cbuf->size;
         return 0;
     }

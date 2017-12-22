@@ -56,9 +56,8 @@ int __attribute__ ((__section__(".text.main")))
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 	// runjp_rank();
 	char buffer[128];
-	read(0, buffer, 1);
-	buffer[1] = '\n';
-	write(1, buffer, strlen(buffer));
+	read(0, buffer, 5);
+	write(1, buffer, 5);
 	 while(1){
 	 }
  	
