@@ -105,9 +105,17 @@ void keyboard_interrupt()
     printc_xy(0,0,keyValue);
 
     int ret = circular_buf_put(&cb, keyValue);
-    if(ret<0 && list_empty(&keyboardqueue)){
-      //mala sort hoiga
+    if(list_empty(&keyboardqueue)){
+      return;
     }
+    else{
+    struct task_struct *keyboard_first = list_first(&keyboardqueue);
+      if(keyboard_first->kb_data.to_read <= circular_buf_num_elems(&cb)){
+        //desbloquejar
+        update_process_state_rr(keyboard_first, &readyqueue);
+      }
+    }
+    
   }
 }
 

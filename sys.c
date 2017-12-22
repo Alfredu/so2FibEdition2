@@ -28,11 +28,18 @@ void switch_system_to_user(){
 	update_stats(&(current()->task_stats.system_ticks), &(current()->task_stats.elapsed_total_ticks));
 }
 
-int check_fd(int fd, int permissions)
+int check_fd_write(int fd, int permissions)
 {
   if (fd!=1) return -EBADF; /*EBADF*/
   if (permissions!=ESCRIPTURA) return -EACCES; /*EACCES*/
   return 0;
+}
+
+int check_fd_read(int fd, int permissions)
+{
+	if (fd!=0) return -EBADF; /*EBADF*/
+  	if (permissions!=LECTURA) return -EACCES; /*EACCES*/
+  	return 0;
 }
 
 int sys_ni_syscall()
@@ -150,7 +157,7 @@ void sys_exit()
 }
 
 int sys_write(int fd, char * buffer, int size) {
-	int ret = check_fd(fd, ESCRIPTURA);
+	int ret = check_fd_write(fd, ESCRIPTURA);
 	if (ret < 0) return ret;
 	if (!buffer) return -EFAULT;
 	if (size<0) return -EINVAL;
@@ -172,14 +179,16 @@ int sys_write(int fd, char * buffer, int size) {
 //Read independent
 int sys_read(int fd, char *buffer, int count)
 {
-	int ret = check_fd(fd, LECTURA);
+	int ret = check_fd_read(fd, LECTURA);
 	if(ret<0) return ret;
 	if (!buffer) return -EFAULT;
 	if (count<0) return -EINVAL;
 	char pointer[BUFFER_SIZE];
 	if (!access_ok(VERIFY_WRITE, buffer, count))
 		return -EFAULT;
+	int bytes_read = 0;
 	ret = sys_read_keyboard(buffer, count);
+	return ret;
 }
 
 int sys_gettime() 

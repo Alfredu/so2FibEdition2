@@ -55,11 +55,10 @@ int __attribute__ ((__section__(".text.main")))
     /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 	// runjp_rank();
-	int stacks[8][1024];
-	 sem_init(0,2);
-	 for(int i=0; i<8; i++){
-		 clone(&printeja, &stacks[i][1024]);
-	 }
+	char buffer[128];
+	read(0, buffer, 1);
+	buffer[1] = '\n';
+	write(1, buffer, strlen(buffer));
 	 while(1){
 	 }
  	

@@ -36,8 +36,8 @@ int circular_buf_put(circular_buffer *cbuf, char data)
 {
     if(circular_buf_full(cbuf)) return -1;
     else{
-        cbuf->buffer[cbuf->tail] = data;
-        cbuf->tail = (cbuf->tail +1)%cbuf->size; //En veritat no caldria perque no sobrescrivim
+        cbuf->buffer[cbuf->head] = data;
+        cbuf->head = (cbuf->head + 1) % cbuf->size;
         cbuf->num_elem++;
         return 0;
     }
@@ -47,7 +47,7 @@ int circular_buf_read(circular_buffer *cbuf, char *data)
     if(circular_buf_empty(cbuf)) return -1;
     else{
         *data = cbuf->buffer[cbuf->head];
-        cbuf->head = (cbuf->head +1)%cbuf->size;
+        cbuf->tail = (cbuf->tail +1)%cbuf->size;
         return 0;
     }
 }
