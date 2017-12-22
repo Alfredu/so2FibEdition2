@@ -309,8 +309,10 @@ int sys_sbrk(int increment) {
 	} else {
 		struct task_struct *current_ts = current();
 		char *current_pb = (char *)current_ts->program_break;
-		char *future_pb = (unsigned int)(current_pb+increment);
-		int pages_needed = ((unsigned int)(future_pb-current_pb)/PAGE_SIZE);
+		char *future_pb = (unsigned int)((current_pb)+increment);
+		int current_page_number = ((unsigned int)(current_pb-1)/PAGE_SIZE);
+		int future_page_number = ((unsigned int)(future_pb)/PAGE_SIZE);
+		int pages_needed = future_page_number -  current_page_number;
 		if( pages_needed > 0) {
 			//Vol dir que necessitem mes pagines
 			int new_frames[pages_needed];
@@ -339,19 +341,13 @@ int sys_sbrk(int increment) {
 			}
 
 			for(int i=0; i<pages_needed; i++){
-				
+				set_ss_pag(current_pt, new_log_pages[i], new_frames[i]);
 			}
-
 		}
-		
-		
-		
-		
-		
-		
 		else{
 			//Augmentem progrma break
 			current_ts->program_break = (void *)future_pb;
 		}
+		return (void *)future_pb;
 	}
 }
