@@ -48,6 +48,7 @@ int circular_buf_read(circular_buffer *cbuf, char *data)
     else{
         *data = cbuf->buffer[cbuf->tail];
         cbuf->tail = (cbuf->tail +1)%cbuf->size;
+        cbuf->num_elem--;
         return 0;
     }
 }
