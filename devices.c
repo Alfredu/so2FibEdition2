@@ -28,7 +28,7 @@ int sys_read_keyboard(char *buffer, int size)
       if(size <= circular_buf_num_elems(&cb)){
         //legim i tal dia farà un any
         current_tu->kb_data.already_read = size;
-        current_tu->kb_data.to_read = 0;
+        current_tu->kb_data.to_read = 6969;
         while(i<size){
           circular_buf_read(&cb, &key);
           copy_to_user(&key, &buffer[i], 1);

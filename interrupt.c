@@ -110,6 +110,7 @@ void keyboard_interrupt()
     }
     else{
     struct task_struct *keyboard_first = list_first(&keyboardqueue);
+    volatile int cosa = keyboard_first->kb_data.to_read;
       if(keyboard_first->kb_data.to_read <= circular_buf_num_elems(&cb)){
         //desbloquejar
         update_process_state_rr(keyboard_first, &readyqueue);

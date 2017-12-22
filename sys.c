@@ -183,10 +183,8 @@ int sys_read(int fd, char *buffer, int count)
 	if(ret<0) return ret;
 	if (!buffer) return -EFAULT;
 	if (count<0) return -EINVAL;
-	char pointer[BUFFER_SIZE];
 	if (!access_ok(VERIFY_WRITE, buffer, count))
 		return -EFAULT;
-	int bytes_read = 0;
 	ret = sys_read_keyboard(buffer, count);
 	return ret;
 }
