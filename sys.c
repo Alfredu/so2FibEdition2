@@ -302,16 +302,15 @@ int sys_sem_destroy(int n_sem) {
 	}
 }
 
-int sys_sbrk(int increment) {
+void *sys_sbrk(int increment) {
+	struct task_struct *current_ts = current();
 	if (increment == 0) {
-		//retorna pos
-		return 0;
+		return current_ts->program_break;
 	} else {
-		struct task_struct *current_ts = current();
 		char *current_pb = (char *)current_ts->program_break;
-		char *future_pb = (unsigned int)((current_pb)+increment);
-		int current_page_number = ((unsigned int)(current_pb-1)/PAGE_SIZE);
-		int future_page_number = ((unsigned int)(future_pb)/PAGE_SIZE);
+		char *future_pb = current_pb + increment;
+		int current_page_number = (PH_PAGE((int)(current_pb-1)));
+		int future_page_number = (PH_PAGE((int)(future_pb)));
 		int pages_needed = future_page_number -  current_page_number;
 		if( pages_needed > 0) {
 			//Vol dir que necessitem mes pagines
@@ -329,14 +328,13 @@ int sys_sbrk(int increment) {
 			page_table_entry *current_pt = get_PT(current_ts);
 			int new_log_pages[pages_needed];
 			int j=0;
-			for(int i=PAG_LOG_INIT_DATA+NUM_PAG_DATA;i<TOTAL_PAGES || j<pages_needed;i++){
+			for(int i=PAG_LOG_INIT_DATA+NUM_PAG_DATA;i<TOTAL_PAGES && j!=pages_needed;i++){
 				if(current_pt[i].entry == 0){
 					new_log_pages[j] = i;
 					j++;
 				}
 			}
 			if(j!=pages_needed){
-				//No hi havia cap pagina lliure. S'hauria de alliberar tot lo que hem alocatat fins ara.
 				return -EAGAIN;
 			}
 
@@ -344,10 +342,8 @@ int sys_sbrk(int increment) {
 				set_ss_pag(current_pt, new_log_pages[i], new_frames[i]);
 			}
 		}
-		else{
-			//Augmentem progrma break
-			current_ts->program_break = (void *)future_pb;
-		}
-		return (void *)future_pb;
+		//Augmentem progrma break
+		current_ts->program_break = (void *)future_pb;
+		return (void *)current_pb;
 	}
 }
