@@ -1,4 +1,4 @@
-//basat en https://embeddedartistry.com/blog/2017/4/6/circular-buffers-in-cc <3
+//basat en https://embeddedartistry.com/blog/2017/4/6/circular-buffers-in-cc </3
 #include <circular_buffer.h>
 void circular_buffer_init(circular_buffer *cb, int size)
 {

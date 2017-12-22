@@ -130,7 +130,7 @@ int sys_fork()
 	}
 	//set_cr3(get_DIR(&father_task_union->task));
 	child_task_union->task.PID = getNextPid();
-
+	father_pt[tmp_logpage].entry = 0;
 	child_task_union->task.kernel_esp = &child_task_union->stack[KERNEL_STACK_SIZE-19];
 	child_task_union->stack[KERNEL_STACK_SIZE-19] = 0;
 	child_task_union->stack[KERNEL_STACK_SIZE-18] = &ret_from_fork;
@@ -299,5 +299,59 @@ int sys_sem_destroy(int n_sem) {
 			update_process_state_rr(list_head_to_task_struct(process_blocked), &readyqueue);
 		}
 		return 0;
+	}
+}
+
+int sys_sbrk(int increment) {
+	if (increment == 0) {
+		//retorna pos
+		return 0;
+	} else {
+		struct task_struct *current_ts = current();
+		char *current_pb = (char *)current_ts->program_break;
+		char *future_pb = (unsigned int)(current_pb+increment);
+		int pages_needed = ((unsigned int)(future_pb-current_pb)/PAGE_SIZE);
+		if( pages_needed > 0) {
+			//Vol dir que necessitem mes pagines
+			int new_frames[pages_needed];
+			for(int i=0; i<pages_needed; i++){
+				new_frames[i] = alloc_frame();
+				if(new_frames[i] < 0){ //ERROR 
+					//ALLIBERAR TOTS ELS FRAMES
+					for(int j=0; j<i; j++){
+						free_frame(new_frames[j]);
+					}
+					return -ENOMEM;
+				}
+			}
+			page_table_entry *current_pt = get_PT(current_ts);
+			int new_log_pages[pages_needed];
+			int j=0;
+			for(int i=PAG_LOG_INIT_DATA+NUM_PAG_DATA;i<TOTAL_PAGES || j<pages_needed;i++){
+				if(current_pt[i].entry == 0){
+					new_log_pages[j] = i;
+					j++;
+				}
+			}
+			if(j!=pages_needed){
+				//No hi havia cap pagina lliure. S'hauria de alliberar tot lo que hem alocatat fins ara.
+				return -EAGAIN;
+			}
+
+			for(int i=0; i<pages_needed; i++){
+				
+			}
+
+		}
+		
+		
+		
+		
+		
+		
+		else{
+			//Augmentem progrma break
+			current_ts->program_break = (void *)future_pb;
+		}
 	}
 }

@@ -29,6 +29,7 @@ struct task_struct {
   enum state_t state;
   struct stats task_stats;
   struct kbdata kb_data;
+  void *program_break;
 };
 
 union task_union {

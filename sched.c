@@ -186,6 +186,7 @@ void init_task1(void)
 
 	//STATS
 	init_task_stats(&process_task1_task_union->task.task_stats);
+	process_task1_task_union->task.program_break = (void *)((PAG_LOG_INIT_DATA+NUM_PAG_DATA)*PAGE_SIZE);
 }
 
 

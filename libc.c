@@ -256,5 +256,23 @@ int sem_destroy (int n_sem) {
   return ret; 
 }
 
+int *sbrk(int increment) {
+  int ret;
+  asm("pushl %%ebx;"
+      "movl %1, %%ebx;"
+      "movl $13, %%eax;"
+      "int $0x80;"
+      "movl %%eax, %0;"
+      "popl %%ebx;"
+      : "=r" (ret)
+      : "r" (increment));
+      
+  if (ret<0) {
+    errno=-ret;
+    return -1;
+  }
+  return ret; 
+}
+
 
 
